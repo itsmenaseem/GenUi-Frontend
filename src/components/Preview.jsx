@@ -1,10 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function Preview({ transpiledCode ,run}) {
+export default function Preview({ transpiledCode, run }) {
   const iframeRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!transpiledCode) return;
+
+    setLoading(true); // show spinner when new code runs
 
     const html = `
       <!DOCTYPE html>
@@ -43,14 +46,47 @@ export default function Preview({ transpiledCode ,run}) {
     `;
 
     iframeRef.current.srcdoc = html;
-  }, [transpiledCode,run]);
+  }, [transpiledCode, run]);
+
+  // Hide spinner once iframe finishes loading
+  const onLoadHandler = () => {
+    setLoading(false);
+  };
 
   return (
-    <iframe
-      ref={iframeRef}
-      title="Live Preview"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
-      style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
-    />
+    <div className="relative w-full h-full">
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-10">
+          {/* Simple spinner */}
+          <svg
+            className="animate-spin h-10 w-10 text-blue-600"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            ></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            ></path>
+          </svg>
+        </div>
+      )}
+      <iframe
+        ref={iframeRef}
+        title="Live Preview"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
+        style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
+        onLoad={onLoadHandler}
+      />
+    </div>
   );
 }

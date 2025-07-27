@@ -5,7 +5,7 @@ const PrivateRoutes = () => {
   const token = useSelector((state) => state.auth.token);
   // If no token, redirect to login
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Else render children (Outlet)

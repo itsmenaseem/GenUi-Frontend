@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { setCredentials } from "../redux/authSlice";
+import { toast } from "react-toastify";
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -29,16 +30,18 @@ const Signup = () => {
         { withCredentials: true }
       );
       dispatch(setCredentials({ token: response.data.accessToken }));
+      toast.success("Signup succesfully")
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
+      const message = error?.response?.data.message || "Something went wrong"
+      toast.error(message)
     } finally {
       setLoading(false);
     }
   };
 
   async function refreshToken() {
-    setLoading(true);
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/v1/auth/refresh`,
@@ -48,9 +51,7 @@ const Signup = () => {
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   }
 
   useEffect(() => {

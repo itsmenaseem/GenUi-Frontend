@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setCredentials } from "../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,16 +23,18 @@ const Login = () => {
         { withCredentials: true }
       );
       dispatch(setCredentials({ token: response.data.accessToken }));
+      toast.success("LoggedIn successfully")
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
+      const message = error?.response?.data.message || "Something went wrong"
+      toast.error(message)
     } finally {
       setLoading(false);
     }
   };
 
   async function refreshToken() {
-    setLoading(true);
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_BASE_URL}/api/v1/auth/refresh`,
@@ -41,9 +44,7 @@ const Login = () => {
       navigate("/dashboard");
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
-    }
+    } 
   }
 
   useEffect(() => {
